@@ -18,17 +18,33 @@ jobs:
       - name: Select Xcode 16.4
         run: sudo xcode-select -s /Applications/Xcode_16.4.app
 
+      - name: Install xcpretty
+        run: gem install xcpretty
+
       - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: Show available destinations
+      - name: Pick simulator
         run: |
-          xcodebuild -showdestinations \
-            -project FinAvsi.xcodeproj \
-            -scheme FinAvsi
-            
-      - name: Install xcpretty
-        run: gem install xcpretty
+          DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c "
+          import sys, json
+          devices = json.load(sys.stdin)['devices']
+          for runtime, sims in devices.items():
+              if 'iOS 18.5' in runtime:
+                  for sim in sims:
+                      if sim['name'] == 'iPad (10th generation)':
+                          print(sim['udid'])
+                          sys.exit(0)
+          raise SystemExit('No matching simulator found')
+          ")
+
+          echo "DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
+          echo "Selected simulator: $DEVICE_ID"
+
+      - name: Boot simulator
+        run: |
+          xcrun simctl boot "$DEVICE_ID" || true
+          xcrun simctl bootstatus "$DEVICE_ID" -b
 
       - name: Build for testing
         run: |
@@ -36,7 +52,7 @@ jobs:
           xcodebuild build-for-testing \
             -project FinAvsi.xcodeproj \
             -scheme FinAvsi \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             IPHONEOS_DEPLOYMENT_TARGET=17.6 \
@@ -44,13 +60,16 @@ jobs:
 
       - name: Run tests
         run: |
+          set -o pipefail
           xcodebuild test-without-building \
             -project FinAvsi.xcodeproj \
             -scheme FinAvsi \
-            -destination 'platform=iOS Simulator,name=Any iOS Simulator Device' \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -derivedDataPath DerivedData \
             -resultBundlePath TestResults.xcresult \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=17.6 \
+          | xcpretty
 
       - name: Upload test results
         if: always()
