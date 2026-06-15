@@ -20,21 +20,20 @@ jobs:
 
       - name: Detect simulator
         run: |
-          device=$(xcrun xctrace list devices 2>&1 \
-            | grep -oE 'iPhone.*?[^\(]+' \
+          DEVICE_ID=$(xcrun xctrace list devices 2>&1 \
+            | grep -E 'iPhone.*\([A-F0-9-]{36}\)' \
             | head -1 \
-            | awk '{$1=$1;print}' \
-            | sed -e "s/ Simulator$//")
+            | sed -E 's/.*\(([A-F0-9-]{36})\).*/\1/')
 
-          echo "DEVICE=$device" >> $GITHUB_ENV
-          echo "Using simulator: $device"
+          echo "DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
+          echo "Using simulator id: $DEVICE_ID"
 
       - name: Build for testing
         run: |
           xcodebuild build-for-testing \
             -project FinAvsi.xcodeproj \
             -scheme FinAvsi \
-            -destination "platform=iOS Simulator,name=$DEVICE" \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             IPHONEOS_DEPLOYMENT_TARGET=17.6
