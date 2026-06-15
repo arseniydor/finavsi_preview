@@ -243,13 +243,6 @@ UI Tests are available through a dedicated manual workflow to keep CI execution 
 - Cloud synchronization
 - Backup and restore
 
-### Platform
-
-- iPad optimizations
-- Widgets
-- Shortcuts integration
-- Apple Watch companion app
-
 ---
 
 ## License
