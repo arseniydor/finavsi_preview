@@ -58,3 +58,5 @@ The project includes:
 * UI Tests
 
 UI tests run using an in-memory SwiftData database to ensure a clean state for every test run.
+
+![iOS CI](https://github.com/USERNAME/FinAvsi/actions/workflows/ios-ci.yml/badge.svg)
