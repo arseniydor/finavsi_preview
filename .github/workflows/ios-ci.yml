@@ -26,15 +26,21 @@ jobs:
           xcodebuild -showdestinations \
             -project FinAvsi.xcodeproj \
             -scheme FinAvsi
+            
+      - name: Install xcpretty
+        run: gem install xcpretty
 
       - name: Build for testing
         run: |
+          set -o pipefail
           xcodebuild build-for-testing \
             -project FinAvsi.xcodeproj \
             -scheme FinAvsi \
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath DerivedData \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=17.6 \
+          | xcpretty
 
       - name: Run tests
         run: |
