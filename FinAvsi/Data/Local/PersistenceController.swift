@@ -14,9 +14,7 @@ final class PersistenceContainer {
     let container: ModelContainer
 
     init(inMemory: Bool = false) {
-        let schema = Schema([
-            TransactionEntity.self
-        ])
+        let schema = Schema([TransactionEntity.self])
 
         let configuration: ModelConfiguration
 

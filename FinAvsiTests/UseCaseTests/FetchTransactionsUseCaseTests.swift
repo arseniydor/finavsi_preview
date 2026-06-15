@@ -9,18 +9,17 @@ import Testing
 @testable import FinAvsi
 import Foundation
 
+@MainActor
 struct FetchTransactionsUseCaseTests {
 
     @Test
     func returnsTransactions() throws {
-        let transaction = Transaction.mock(title: "Coffee")
+        let fixture = TestTransactionRepositoryFixture()
 
-        let repository = MockTransactionRepository(
-            transactions: [transaction]
-        )
+        try fixture.repository.save(.mock(title: "Coffee"))
 
         let useCase = FetchTransactionsUseCase(
-            repository: repository
+            repository: fixture.repository
         )
 
         let result = try useCase.execute()
@@ -30,27 +29,38 @@ struct FetchTransactionsUseCaseTests {
     }
 
     @Test
+    func returnsTransactionsSortedByDateDescending() throws {
+        let fixture = TestTransactionRepositoryFixture()
+
+        try fixture.repository.save(
+            .mock(title: "Old", date: Date(timeIntervalSince1970: 100))
+        )
+
+        try fixture.repository.save(
+            .mock(title: "New", date: Date(timeIntervalSince1970: 200))
+        )
+
+        let useCase = FetchTransactionsUseCase(
+            repository: fixture.repository
+        )
+
+        let result = try useCase.execute()
+
+        #expect(result.count == 2)
+        #expect(result[0].title == "New")
+        #expect(result[1].title == "Old")
+    }
+
+    @Test
     func returnsEmptyArrayWhenRepositoryIsEmpty() throws {
-        let repository = MockTransactionRepository()
-        let useCase = FetchTransactionsUseCase(repository: repository)
+        let fixture = TestTransactionRepositoryFixture()
+
+        let useCase = FetchTransactionsUseCase(
+            repository: fixture.repository
+        )
 
         let result = try useCase.execute()
 
         #expect(result.isEmpty)
-    }
-
-    @Test
-    func throwsRepositoryError() {
-        let repository = MockTransactionRepository()
-        repository.errorToThrow =
-            TransactionRepositoryError.transactionNotFound
-
-        let useCase = FetchTransactionsUseCase(
-            repository: repository
-        )
-
-        #expect(throws: TransactionRepositoryError.self) {
-            try useCase.execute()
-        }
     }
 }

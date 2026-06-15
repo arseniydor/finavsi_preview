@@ -11,22 +11,15 @@ import Combine
 @MainActor
 final class DashboardViewModel: ObservableObject {
 
-    @Published private(set) var state: CommonViewState<[Transaction]> = .loading
-    @Published var searchText: String = ""
-    @Published var selectedType: TransactionType?
+    @Published private(set) var state: CommonViewState<DashboardAnalytics> = .loading
+    @Published private(set) var selectedMonth: Date = Date()
 
-    private var allTransactions: [Transaction] = []
     private var hasLoaded = false
+    private let fetchDashboardAnalyticsUseCase: FetchDashboardAnalyticsUseCaseProtocol
+    private let calendar = Calendar.current
 
-    private let fetchTransactionsUseCase: FetchTransactionsUseCaseProtocol
-    private let deleteTransactionUseCase: DeleteTransactionUseCaseProtocol
-
-    init(
-        fetchTransactionsUseCase: FetchTransactionsUseCaseProtocol,
-        deleteTransactionUseCase: DeleteTransactionUseCaseProtocol
-    ) {
-        self.fetchTransactionsUseCase = fetchTransactionsUseCase
-        self.deleteTransactionUseCase = deleteTransactionUseCase
+    init(fetchDashboardAnalyticsUseCase: FetchDashboardAnalyticsUseCaseProtocol) {
+        self.fetchDashboardAnalyticsUseCase = fetchDashboardAnalyticsUseCase
     }
 
     func initialLoad() async {
@@ -39,60 +32,76 @@ final class DashboardViewModel: ObservableObject {
         state = .loading
 
         do {
-            allTransactions = try fetchTransactionsUseCase.execute()
-            applyFilters()
+            let analytics = try fetchDashboardAnalyticsUseCase.execute(
+                filter: makeMonthFilter()
+            )
+            state = .loaded(analytics)
         } catch {
-            state = .error(message: "Failed to fetch transactions")
+            state = .error(message: "Failed to fetch analytics")
         }
     }
 
-    func delete(_ transaction: Transaction) {
-        do {
-            try deleteTransactionUseCase.execute(id: transaction.id)
-            allTransactions.removeAll { $0.id == transaction.id }
-            applyFilters()
-        } catch {
-            state = .error(message: "Failed to delete transaction")
+    func previousMonth() {
+        selectedMonth = calendar.date(
+            byAdding: .month,
+            value: -1,
+            to: selectedMonth
+        ) ?? selectedMonth
+
+        Task {
+            await reload()
         }
     }
 
-    func applyFilters() {
-        var result = allTransactions
+    func nextMonth() {
+        selectedMonth = calendar.date(
+            byAdding: .month,
+            value: 1,
+            to: selectedMonth
+        ) ?? selectedMonth
 
-        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            let query = searchText.lowercased()
+        Task {
+            await reload()
+        }
+    }
 
-            result = result.filter {
-                $0.title.lowercased().contains(query)
-                || ($0.description?.lowercased().contains(query) ?? false)
-                || $0.category.lowercased().contains(query)
-            }
+    var selectedMonthTitle: String {
+        selectedMonth.formatted(
+            .dateTime
+                .month(.wide)
+                .year()
+        )
+    }
+}
+
+// MARK: - Private
+
+private extension DashboardViewModel {
+
+    func makeMonthFilter() -> TransactionFilter {
+        let startDate = calendar.date(
+            from: calendar.dateComponents(
+                [.year, .month],
+                from: selectedMonth
+            )
+        )
+
+        let endDate = startDate.flatMap {
+            calendar.date(
+                byAdding: .month,
+                value: 1,
+                to: $0
+            )
         }
 
-        if let selectedType {
-            result = result.filter {
-                $0.type == selectedType
-            }
-        }
-
-        state = .loaded(result)
-    }
-
-    var totalExpenses: Double {
-        allTransactions
-            .filter { $0.type == .expense }
-            .map(\.amount)
-            .reduce(0, +)
-    }
-
-    var totalIncome: Double {
-        allTransactions
-            .filter { $0.type == .income }
-            .map(\.amount)
-            .reduce(0, +)
-    }
-
-    var balance: Double {
-        totalIncome - totalExpenses
+        return TransactionFilter(
+            startDate: startDate,
+            endDate: endDate,
+            type: nil,
+            searchText: nil,
+            paymentMethod: nil,
+            minAmount: nil,
+            maxAmount: nil
+        )
     }
 }

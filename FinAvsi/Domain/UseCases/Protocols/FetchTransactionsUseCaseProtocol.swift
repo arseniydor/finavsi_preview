@@ -9,4 +9,5 @@ import Foundation
 
 protocol FetchTransactionsUseCaseProtocol {
     func execute() throws -> [Transaction]
+    func execute(filter: TransactionFilter) throws -> [Transaction]
 }
