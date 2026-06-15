@@ -21,18 +21,28 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: Show available destinations
+      - name: Create simulator
         run: |
-          xcodebuild -showdestinations \
-            -project FinAvsi.xcodeproj \
-            -scheme FinAvsi
+          RUNTIME=$(xcrun simctl list runtimes iOS --json | \
+            python3 -c "import sys,json; r=json.load(sys.stdin)['runtimes']; print([x['identifier'] for x in r if x.get('isAvailable')][-1])")
+
+          DEVICE_TYPE=$(xcrun simctl list devicetypes --json | \
+            python3 -c "import sys,json; d=json.load(sys.stdin)['devicetypes']; print([x['identifier'] for x in d if 'iPhone' in x['name']][-1])")
+
+          DEVICE_ID=$(xcrun simctl create "CI iPhone" "$DEVICE_TYPE" "$RUNTIME")
+          echo "DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
+
+      - name: Boot simulator
+        run: |
+          xcrun simctl boot "$DEVICE_ID" || true
+          xcrun simctl bootstatus "$DEVICE_ID" -b
 
       - name: Build and test
         run: |
           xcodebuild test \
             -project FinAvsi.xcodeproj \
             -scheme FinAvsi \
-            -destination 'platform=iOS Simulator,name=Any iOS Simulator Device' \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO
 
