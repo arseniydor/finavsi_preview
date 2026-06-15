@@ -13,20 +13,26 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
 
       - name: Show Xcode version
         run: xcodebuild -version
+
+      - name: Show available destinations
+        run: |
+          xcodebuild -showdestinations \
+            -project FinAvsi.xcodeproj \
+            -scheme FinAvsi
 
       - name: Build and test
         run: |
           xcodebuild test \
             -project FinAvsi.xcodeproj \
             -scheme FinAvsi \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination 'platform=iOS Simulator,name=Any iOS Simulator Device' \
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO
 
