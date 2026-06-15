@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 @main
+@MainActor
 struct FinAvsiApp: App {
 
     private let persistenceContainer: PersistenceContainer
