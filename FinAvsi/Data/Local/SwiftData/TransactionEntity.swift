@@ -13,7 +13,6 @@ final class TransactionEntity {
     
     @Attribute(.unique)
     var id: UUID
-    
     var amount: Double
     var type: TransactionType
     var category: String

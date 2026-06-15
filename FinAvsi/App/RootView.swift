@@ -18,10 +18,21 @@ struct RootView: View {
             TabNavigationView(
                 path: $router.dashboardPath,
                 tabTitle: "Dashboard",
-                tabImage: "calendar",
+                tabImage: "chart.pie",
                 tag: AppTab.dashboard,
                 root: DashboardView(
                     viewModel: container.makeDashboardViewModel()
+                ),
+                destination: destination
+            )
+            
+            TabNavigationView(
+                path: $router.transactionsPath,
+                tabTitle: "Transactions",
+                tabImage: "list.bullet",
+                tag: AppTab.transactions,
+                root: TransactionsView(
+                    viewModel: container.makeTransactionsViewModel()
                 ),
                 destination: destination
             )

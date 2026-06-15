@@ -9,23 +9,17 @@ import Testing
 @testable import FinAvsi
 import Foundation
 
+@MainActor
 struct TransactionFilterTests {
 
     @Test
     func filtersTransactionsByType() throws {
-        let expense = Transaction.mock(
-            type: .expense, title: "Coffee"
-        )
+        let fixture = TestTransactionRepositoryFixture()
 
-        let income = Transaction.mock(
-            type: .income, title: "Salary"
-        )
+        try fixture.repository.save(.mock(type: .expense, title: "Coffee"))
+        try fixture.repository.save(.mock(type: .income, title: "Salary"))
 
-        let repository = MockTransactionRepository(
-            transactions: [expense, income]
-        )
-
-        let result = try repository.fetch(
+        let result = try fixture.repository.fetch(
             filter: TransactionFilter(type: .expense)
         )
 
@@ -34,22 +28,33 @@ struct TransactionFilterTests {
     }
 
     @Test
+    func filtersTransactionsByPaymentMethod() throws {
+        let fixture = TestTransactionRepositoryFixture()
+
+        try fixture.repository.save(
+            .mock(title: "Coffee", paymentMethod: .card)
+        )
+
+        try fixture.repository.save(
+            .mock(title: "Rent", paymentMethod: .cash)
+        )
+
+        let result = try fixture.repository.fetch(
+            filter: TransactionFilter(paymentMethod: .card)
+        )
+
+        #expect(result.count == 1)
+        #expect(result.first?.title == "Coffee")
+    }
+
+    @Test
     func filtersTransactionsBySearchTextInTitle() throws {
-        let coffee = Transaction.mock(
-            title: "Coffee",
-            category: "Food"
-        )
+        let fixture = TestTransactionRepositoryFixture()
 
-        let taxi = Transaction.mock(
-            title: "Taxi",
-            category: "Transport"
-        )
+        try fixture.repository.save(.mock(title: "Coffee", category: "Food"))
+        try fixture.repository.save(.mock(title: "Taxi", category: "Transport"))
 
-        let repository = MockTransactionRepository(
-            transactions: [coffee, taxi]
-        )
-
-        let result = try repository.fetch(
+        let result = try fixture.repository.fetch(
             filter: TransactionFilter(searchText: "cof")
         )
 
@@ -59,21 +64,12 @@ struct TransactionFilterTests {
 
     @Test
     func filtersTransactionsBySearchTextInCategory() throws {
-        let coffee = Transaction.mock(
-            title: "Coffee",
-            category: "Food"
-        )
+        let fixture = TestTransactionRepositoryFixture()
 
-        let taxi = Transaction.mock(
-            title: "Taxi",
-            category: "Transport"
-        )
+        try fixture.repository.save(.mock(title: "Coffee", category: "Food"))
+        try fixture.repository.save(.mock(title: "Taxi", category: "Transport"))
 
-        let repository = MockTransactionRepository(
-            transactions: [coffee, taxi]
-        )
-
-        let result = try repository.fetch(
+        let result = try fixture.repository.fetch(
             filter: TransactionFilter(searchText: "trans")
         )
 
@@ -83,21 +79,17 @@ struct TransactionFilterTests {
 
     @Test
     func filtersTransactionsByDateRange() throws {
-        let old = Transaction.mock(
-            title: "Old",
-            date: Date(timeIntervalSince1970: 100)
+        let fixture = TestTransactionRepositoryFixture()
+
+        try fixture.repository.save(
+            .mock(title: "Old", date: Date(timeIntervalSince1970: 100))
         )
 
-        let recent = Transaction.mock(
-            title: "Recent",
-            date: Date(timeIntervalSince1970: 300)
+        try fixture.repository.save(
+            .mock(title: "Recent", date: Date(timeIntervalSince1970: 300))
         )
 
-        let repository = MockTransactionRepository(
-            transactions: [old, recent]
-        )
-
-        let result = try repository.fetch(
+        let result = try fixture.repository.fetch(
             filter: TransactionFilter(
                 startDate: Date(timeIntervalSince1970: 200),
                 endDate: Date(timeIntervalSince1970: 400)
@@ -110,19 +102,12 @@ struct TransactionFilterTests {
 
     @Test
     func filtersTransactionsByAmountRange() throws {
-        let cheap = Transaction.mock(
-            amount: 3, title: "Coffee"
-        )
+        let fixture = TestTransactionRepositoryFixture()
 
-        let expensive = Transaction.mock(
-            amount: 80, title: "Dinner"
-        )
+        try fixture.repository.save(.mock(amount: 3, title: "Coffee"))
+        try fixture.repository.save(.mock(amount: 80, title: "Dinner"))
 
-        let repository = MockTransactionRepository(
-            transactions: [cheap, expensive]
-        )
-
-        let result = try repository.fetch(
+        let result = try fixture.repository.fetch(
             filter: TransactionFilter(
                 minAmount: 10,
                 maxAmount: 100

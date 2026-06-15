@@ -18,4 +18,8 @@ final class FetchTransactionsUseCase: FetchTransactionsUseCaseProtocol {
     func execute() throws -> [Transaction] {
         try repository.fetchAll()
     }
+    
+    func execute(filter: TransactionFilter) throws -> [Transaction] {
+        try repository.fetch(filter: filter)
+    }
 }

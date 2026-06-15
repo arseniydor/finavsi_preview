@@ -10,6 +10,7 @@ import SwiftUI
 
 enum AppTab: Hashable {
     case dashboard
+    case transactions
 }
 
 enum AppRoute: Hashable {
@@ -22,11 +23,14 @@ final class AppRouter: ObservableObject {
     @Published var selectedTab: AppTab = .dashboard
 
     @Published var dashboardPath: [AppRoute] = []
+    @Published var transactionsPath: [AppRoute] = []
 
     func navigate(to route: AppRoute) {
         switch selectedTab {
         case .dashboard:
             dashboardPath.append(route)
+        case .transactions:
+            transactionsPath.append(route)
         }
     }
     
@@ -35,6 +39,9 @@ final class AppRouter: ObservableObject {
         case .dashboard:
             guard !dashboardPath.isEmpty else { return }
             dashboardPath.removeLast()
+        case .transactions:
+            guard !transactionsPath.isEmpty else { return }
+            transactionsPath.removeLast()
         }
     }
 
@@ -42,6 +49,8 @@ final class AppRouter: ObservableObject {
         switch selectedTab {
         case .dashboard:
             dashboardPath.removeAll()
+        case .transactions:
+            transactionsPath.removeAll()
         }
     }
 }

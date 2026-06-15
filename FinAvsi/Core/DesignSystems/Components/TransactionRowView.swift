@@ -16,14 +16,11 @@ struct TransactionRowView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(transaction.title)
                     .font(.headline)
-
                 Text(transaction.category)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-
             Spacer()
-
             Text(transaction.amount, format: .currency(code: "EUR"))
                 .font(.headline)
         }

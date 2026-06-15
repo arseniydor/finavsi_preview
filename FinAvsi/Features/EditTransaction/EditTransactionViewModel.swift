@@ -16,10 +16,7 @@ final class EditTransactionViewModel: ObservableObject {
     private let transaction: Transaction
     private let updateTransactionUseCase: UpdateTransactionUseCaseProtocol
 
-    init(
-        transaction: Transaction,
-        updateTransactionUseCase: UpdateTransactionUseCaseProtocol
-    ) {
+    init(transaction: Transaction, updateTransactionUseCase: UpdateTransactionUseCaseProtocol) {
         self.transaction = transaction
         self.draft = TransactionDraft(transaction: transaction)
         self.updateTransactionUseCase = updateTransactionUseCase

@@ -20,9 +20,7 @@ struct FinAvsiApp: App {
         let persistenceContainer = PersistenceContainer(inMemory: isUITesting)
 
         self.persistenceContainer = persistenceContainer
-        self.appContainer = AppContainer(
-            modelContext: persistenceContainer.mainContext
-        )
+        self.appContainer = AppContainer(modelContext: persistenceContainer.mainContext)
     }
 
     var body: some Scene {

@@ -16,6 +16,7 @@ final class AppContainer {
     private let addTransactionUseCase: AddTransactionUseCaseProtocol
     private let updateTransactionUseCase: UpdateTransactionUseCaseProtocol
     private let deleteTransactionUseCase: DeleteTransactionUseCaseProtocol
+    private let fetchDashboardAnalyticsUseCase: FetchDashboardAnalyticsUseCaseProtocol
 
     init(modelContext: ModelContext) {
         self.transactionRepository = TransactionRepository(context: modelContext)
@@ -24,11 +25,17 @@ final class AppContainer {
         self.addTransactionUseCase = AddTransactionUseCase(repository: transactionRepository)
         self.updateTransactionUseCase = UpdateTransactionUseCase(repository: transactionRepository)
         self.deleteTransactionUseCase = DeleteTransactionUseCase(repository: transactionRepository)
+        self.fetchDashboardAnalyticsUseCase = FetchDashboardAnalyticsUseCase(repository: transactionRepository)
     }
 
     @MainActor
     func makeDashboardViewModel() -> DashboardViewModel {
-        DashboardViewModel(fetchTransactionsUseCase: fetchTransactionsUseCase, deleteTransactionUseCase: deleteTransactionUseCase)
+        DashboardViewModel(fetchDashboardAnalyticsUseCase: fetchDashboardAnalyticsUseCase)
+    }
+    
+    @MainActor
+    func makeTransactionsViewModel() -> TransactionsViewModel {
+        TransactionsViewModel(fetchTransactionsUseCase: fetchTransactionsUseCase, deleteTransactionUseCase: deleteTransactionUseCase)
     }
 
     @MainActor

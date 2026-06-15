@@ -110,9 +110,7 @@ final class TransactionRepository: TransactionRepositoryProtocol {
 
 private extension TransactionRepository {
 
-    func fetchFilteredEntities(
-        filter: TransactionFilter
-    ) throws -> [TransactionEntity] {
+    func fetchFilteredEntities(filter: TransactionFilter) throws -> [TransactionEntity] {
 
         let descriptor = FetchDescriptor<TransactionEntity>(
             sortBy: [
@@ -127,10 +125,7 @@ private extension TransactionRepository {
         }
     }
 
-    func matches(
-        _ entity: TransactionEntity,
-        filter: TransactionFilter
-    ) -> Bool {
+    func matches(_ entity: TransactionEntity, filter: TransactionFilter) -> Bool {
 
         if let startDate = filter.startDate,
            entity.date < startDate {
@@ -138,7 +133,7 @@ private extension TransactionRepository {
         }
 
         if let endDate = filter.endDate,
-           entity.date > endDate {
+           entity.date >= endDate {
             return false
         }
 
@@ -181,7 +176,11 @@ private extension TransactionRepository {
                 .lowercased()
                 .contains(normalizedSearchText) ?? false
 
-            if !titleMatches && !noteMatches {
+            let categoryMatches = entity.category
+                .lowercased()
+                .contains(normalizedSearchText)
+
+            if !titleMatches && !noteMatches && !categoryMatches {
                 return false
             }
         }
