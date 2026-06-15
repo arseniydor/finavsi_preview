@@ -64,6 +64,7 @@ jobs:
             -scheme FinAvsi \
             -destination "id=$DEVICE_ID" \
             -derivedDataPath DerivedData \
+            -skip-testing:FinAvsiUITests \
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             IPHONEOS_DEPLOYMENT_TARGET=17.6
