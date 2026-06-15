@@ -8,12 +8,13 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test
-    runs-on: macos-15
+    name: Build and Unit Tests
+    runs-on: macos-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
@@ -21,14 +22,52 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: Build and test
+      - name: Show available simulators
+        run: xcrun simctl list devices available
+
+      - name: Get simulator ID
         run: |
-          xcodebuild test \
+          DEVICE_ID=$(xcrun simctl list devices available | \
+            grep "iPhone 16 (" | \
+            head -1 | \
+            sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+
+          if [ -z "$DEVICE_ID" ]; then
+            DEVICE_ID=$(xcrun simctl list devices available | \
+              grep "iPhone" | \
+              head -1 | \
+              sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+          fi
+
+          if [ -z "$DEVICE_ID" ]; then
+            echo "No iPhone simulator found"
+            exit 1
+          fi
+
+          echo "DEVICE_ID=$DEVICE_ID" >> $GITHUB_ENV
+          echo "Using simulator id: $DEVICE_ID"
+
+      - name: Build for testing
+        run: |
+          xcodebuild build-for-testing \
             -project FinAvsi.xcodeproj \
             -scheme FinAvsi \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination "id=$DEVICE_ID" \
+            -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=17.6
+
+      - name: Run unit tests
+        run: |
+          xcodebuild test-without-building \
+            -project FinAvsi.xcodeproj \
+            -scheme FinAvsi \
+            -destination "id=$DEVICE_ID" \
+            -derivedDataPath DerivedData \
+            -skip-testing:FinAvsiUITests \
             -resultBundlePath TestResults.xcresult \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=17.6
 
       - name: Upload test results
         if: always()
