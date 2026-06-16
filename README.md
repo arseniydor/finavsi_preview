@@ -1,23 +1,19 @@
 # FinAvsi
 
-![Platform](https://img.shields.io/badge/iOS-17.6+-blue)
-![Swift](https://img.shields.io/badge/Swift-5.10-orange)
-![SwiftUI](https://img.shields.io/badge/SwiftUI-ready-green)
+<div align="center">
 
-A modern personal finance tracker built with **SwiftUI**, **SwiftData**, and **Clean Architecture**.
+![iOS](https://img.shields.io/badge/iOS-17.6%2B-blue.svg)
+![Swift](https://img.shields.io/badge/Swift-5.10-orange.svg)
+![SwiftUI](https://img.shields.io/badge/SwiftUI-Native-green.svg)
+![SwiftData](https://img.shields.io/badge/SwiftData-Persistence-success.svg)
+![Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-purple.svg)
+![Testing](https://img.shields.io/badge/Testing-Unit%20%26%20UI-success.svg)
+![CI](https://img.shields.io/badge/CI-GitHub%20Actions-black.svg)
+![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)
 
-FinAvsi helps users manage personal finances by tracking income and expenses, organizing transactions, and providing monthly analytics through a clean and native iOS experience.
+Modern personal finance tracker built with **SwiftUI**, **SwiftData**, and **Clean Architecture**.
 
-The project demonstrates modern iOS development practices including:
-
-- SwiftUI
-- SwiftData
-- Clean Architecture
-- Repository Pattern
-- Dependency Injection
-- Unit Testing
-- UI Testing
-- GitHub Actions CI/CD
+</div>
 
 ---
 
@@ -35,69 +31,72 @@ The project demonstrates modern iOS development practices including:
 
 ## Features
 
-### Transactions
+### Transaction Management
 
-- Add transactions
+- Create transactions
 - Edit transactions
 - Delete transactions
 - Income and expense tracking
 - Transaction search
-- Advanced transaction filtering
-- Swipe actions for quick editing and deletion
+- Advanced filtering
+- Swipe actions for quick operations
 
-### Dashboard
+### Dashboard & Analytics
 
 - Monthly financial summary
-- Month navigation
 - Income overview
 - Expense overview
-- Balance calculation
-- Category analytics
-- Top spending categories
-
-### Analytics
-
-- Total income
-- Total expenses
 - Current balance
-- Transaction count
 - Category breakdown
+- Top spending categories
 - Monthly aggregation
+
+### User Experience
+
+- Native SwiftUI interface
+- NavigationStack navigation
+- Reusable UI components
+- Fast local persistence
+- Smooth animations and transitions
 
 ---
 
 ## Tech Stack
 
-### UI
+### UI Layer
 
 - SwiftUI
 - NavigationStack
 - MVVM
 
-### Persistence
+### Data Layer
 
 - SwiftData
+- Repository Pattern
 - ModelContainer
 - ModelContext
 
-### Testing
+### Architecture
+
+- Clean Architecture
+- Dependency Injection
+- Protocol-Oriented Design
+
+### Quality
 
 - Swift Testing
 - XCTest
-
-### CI/CD
-
 - GitHub Actions
 
 ---
 
 ## Architecture
 
-The project follows **Clean Architecture** principles.
+The project follows **Clean Architecture** principles with clear separation between Presentation, Domain, and Data layers.
 
 ### Presentation Layer
 
-Responsible for UI and user interactions.
+Responsible for UI rendering and user interaction.
 
 - Views
 - ViewModels
@@ -106,7 +105,7 @@ Responsible for UI and user interactions.
 
 ### Domain Layer
 
-Contains business logic and application rules.
+Contains business rules and application logic.
 
 - Models
 - Use Cases
@@ -120,20 +119,20 @@ Responsible for persistence and data access.
 - Repositories
 - SwiftData Entities
 - Mappers
-- Persistence Layer
+- Local Storage
 
 ---
 
 ## Dependency Injection
 
-Dependencies are assembled through a central `AppContainer`.
+Dependencies are assembled through a centralized `AppContainer`.
 
-This approach provides:
+Benefits:
 
-- Better testability
+- Improved testability
 - Loose coupling
-- Clear dependency management
-- Easy replacement of implementations
+- Better maintainability
+- Easier mocking and replacement
 
 ---
 
@@ -162,23 +161,13 @@ FinAvsi
 │   └── Local
 │
 ├── Core
-│   ├── Extensions
 │   ├── DesignSystems
-│   └── Protocols
+│   ├── Protocols
+│   └── Extensions
 │
 ├── FinAvsiTests
-│
 └── FinAvsiUITests
 ```
-
----
-
-## Screens
-
-- Dashboard
-- Transactions
-- Add Transaction
-- Edit Transaction
 
 ---
 
@@ -189,23 +178,23 @@ FinAvsi
 Coverage includes:
 
 - Repository Tests
-- Transaction Filtering
-- Use Cases
+- Use Case Tests
 - Analytics Builders
+- Transaction Filtering
 
-Unit tests use an in-memory SwiftData container to ensure deterministic and isolated execution.
+Tests use an in-memory SwiftData container for deterministic execution.
 
 ### UI Tests
 
 Coverage includes:
 
-- App Launch
+- Application Launch
 - Create Transaction
 - Edit Transaction
 - Delete Transaction
 - Search Transaction
 
-UI tests also use an in-memory database to guarantee a clean state for every test run.
+UI tests run against an isolated in-memory database.
 
 ---
 
@@ -213,11 +202,11 @@ UI tests also use an in-memory database to guarantee a clean state for every tes
 
 GitHub Actions automatically performs:
 
-- Project Build Validation
+- Build Validation
 - Unit Test Execution
-- Test Result Artifacts Upload
+- Artifact Upload
 
-UI Tests are available through a dedicated manual workflow to keep CI execution fast and reliable.
+UI Tests are available through a dedicated workflow to keep CI pipelines fast and reliable.
 
 ---
 
@@ -229,22 +218,8 @@ UI Tests are available through a dedicated manual workflow to keep CI execution 
 
 ---
 
-## Future Improvements
+## Author
 
-### Transactions
+**Arsenii Dorogin**
 
-- Recurring transactions
-- Transaction templates
-- Bulk editing
-
-### Data
-
-- CSV export/import
-- Cloud synchronization
-- Backup and restore
-
----
-
-## License
-
-This project is available under the MIT License.
+Built with SwiftUI, SwiftData, and Clean Architecture principles.
